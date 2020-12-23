@@ -81,6 +81,42 @@ class Array(VGroup):
                     **config
                 )
 
+    def pop(self, index: int, play, **config):
+        """Animation when poping an element from the array
+
+        Parameters
+        ----------
+        index : int
+            The index of the element
+        play : Callable
+            Pass self.play as a callback
+        """
+    
+        # Fade out the element with the given index
+        play(
+            FadeOutAndShift(self.squares[index], DOWN),
+            FadeOutAndShift(self.numbers[index], DOWN),
+            **config
+        )
+
+        diff = self.squares[index].get_x() - self.squares[index - 1].get_x()
+        
+        self.remove(self.squares[index])
+        self.remove(self.numbers[index])
+        self.squares.pop(index)
+        self.numbers.pop(index)
+
+        # Shift the other elements appropriately
+        if (index != self.size - 1):
+            anims = []
+            for i in range(index, len(self.squares)):
+                anims.append(self.squares[i].shift)
+                anims.append(diff * LEFT)
+                anims.append(self.numbers[i].shift)
+                anims.append(diff * LEFT)
+            
+            play(*anims)
+
     def create_pointer(self, name: str, index: int):
         """Creates a pointer to an element in the array with given index.
 
