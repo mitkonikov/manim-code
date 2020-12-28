@@ -1,26 +1,11 @@
-# Objects
-from manim import (
-    VGroup,
-    Square,
-    Tex,
-    Rectangle,
-    Vector,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
-)
-
-# Animations
-from manim import (
-    ShowCreation,
-    Indicate,
-    DrawBorderThenFill,
-    ApplyMethod,
-    Write,
-    FadeOutAndShift,
-    MoveToTarget
-)
+from manim.animation.creation import DrawBorderThenFill, ShowCreation, Write
+from manim.animation.fading import FadeOutAndShift
+from manim.animation.indication import Indicate
+from manim.animation.transform import ApplyMethod, MoveToTarget
+from manim.constants import DOWN, LEFT, RIGHT, UP
+from manim.mobject.geometry import Rectangle, Square, Vector
+from manim.mobject.svg.tex_mobject import Tex
+from manim.mobject.types.vectorized_mobject import VGroup
 
 
 class Array(VGroup):
@@ -53,18 +38,9 @@ class Array(VGroup):
         super().__init__(name=name, **kwargs)
 
         self.add(self.array_name)
-
-        # ? Why make a brother add a collection as well as its size
         self.array = values
         self.pointers = dict()
         self.pointer_texts = dict()
-        # self.size = len(values)
-
-        # TODO: Return when I understand this
-        # elif (config["memset"]):
-        #     self.initial_values = config["memset"]
-        #     for i in range(0, size):
-        #         self.array.append(self.initial_values)
 
     def create_array(self, sq_size: int, name_size=1, **kwargs):
         """Creates the objects for each element in the array.
