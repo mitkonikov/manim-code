@@ -26,16 +26,22 @@ Example code:
 
     array = Array(
         "Array", 
-        *range(6), 
+        *range(6), # this is the array 
         name_config={"fill_color": WHITE}
     )
     array.create_array(sq_size=0.5, name_size=1.2)
     for anims in array.draw_array():
-        self.play(*anims, run_time=0.5)
+        self.play(anims, run_time=0.5)
+
+Creating a pointer to an element in the array:
+
+ .. code-block:: python
 
     array.create_pointer(index=2)
     self.play(array.draw_pointer(index=2), run_time=0.5)
     self.play(array.draw_pointer_name(index=2, text="Here", text_size=1.2))
+    
+    # get the pointer at index 2 and shift it to the square with index 4
     pointer = array.get_pointer(2)
     self.play(
         ApplyMethod(pointer.next_to, array.get_square(4), DOWN, aligned_edge=UP),
@@ -43,17 +49,27 @@ Example code:
     )
     self.play(*array.indicate_at(4), run_time=0.5)
     self.play(Indicate(pointer), run_time=0.5)
+
+The array is a VGroup, so you can transform it as a whole.
+
+ .. code-block:: python
+
     self.play(array.scale, 1.1, run_time=0.5)
+
+Popping an element:
+
+ .. code-block:: python
+
     pop_anims = list(array.pop(index=3))
-    self.play(*pop_anims[:-1])
+    self.play(*pop_anims[:-1]) # pop the element
     self.wait()
-    self.play(*pop_anims[-1:])
+    self.play(*pop_anims[-1:]) # shift the others
     self.wait()
 
 Functions
 ^^^^^^^^^
 
-create_array (sq_size: `int`, name_size: `int`=1, **kwargs)
+create_array (sq_size: `int`, name_size: `int` = 1, `**kwargs`)
     Creates all the necessary objects with the given text and square size.
 
 draw_array ()

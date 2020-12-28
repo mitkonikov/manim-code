@@ -41,15 +41,12 @@ class Array(VGroup):
         self.array = values
         self.pointers = dict()
         self.pointer_texts = dict()
+        self.squares = VGroup()
+        self.elements = VGroup()
 
     def create_array(self, sq_size: int, name_size=1, **kwargs):
         """Creates the objects for each element in the array.
         """
-        # TODO: Should this be expected as part of __init__?
-        self.squares = VGroup()
-        self.elements = VGroup()
-
-        # Create the squares and the numbers for each array element
         for val in self.array:
             element = Tex(
                 # None in the val for an empty box
@@ -81,13 +78,15 @@ class Array(VGroup):
         # I think it's better style for this method to simply return the animations
         # rather than play them, since the rendering of the scene feels more a part
         # of what a Scene is rather than an Array
-        all_anims = list(
-            [DrawBorderThenFill(square), Write(element)]
-            for square, element in zip(self.squares, self.elements)
-        )
-        all_anims[0].append(Write(self.array_name))
-        for anims in all_anims:
-            yield anims
+
+        # Here we are just giving the square animation, because the element itself
+        # is inside the square object, so it would be rendered as well.
+        all_anims = [Write(self.array_name)]
+        all_anims.extend(list(
+            DrawBorderThenFill(square)
+            for square in self.squares
+        ))
+        return all_anims
 
     def pop(self, index: int):
         """Animation when poping an element from the array
@@ -107,10 +106,10 @@ class Array(VGroup):
         element = target.elements[index]
 
         # Noticed a bit of a logical flaw here
-        self -= square
-        self -= element
-        self.squares -= square
-        self.elements -= element
+        self.remove(square)
+        self.remove(element)
+        self.squares.remove(square)
+        self.elements.remove(element)
         # del square
         # del element
 
