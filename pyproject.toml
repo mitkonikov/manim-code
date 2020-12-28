@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Manim extension designed for code explanatory videos"
 authors = ["Mitko Nikov <mitkonikov01@gmail.com>"]
 readme = "README.rst"
+repository = "https://github.com/mitkonikov/manim-code"
 
 [tool.poetry.plugins."manim.plugins"]
 "manim_code" = "manim_code"

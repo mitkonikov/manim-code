@@ -1,4 +1,12 @@
-from manim import *
+from manim.animation.creation import DrawBorderThenFill, ShowCreation, Write
+from manim.animation.fading import FadeOutAndShift
+from manim.animation.indication import Indicate
+from manim.animation.transform import ApplyMethod, MoveToTarget
+from manim.constants import DOWN, LEFT, RIGHT, UP
+from manim.mobject.geometry import Rectangle, Square, Vector
+from manim.mobject.svg.tex_mobject import Tex
+from manim.mobject.types.vectorized_mobject import VGroup
+
 
 class Array(VGroup):
     """
@@ -9,167 +17,164 @@ class Array(VGroup):
         name:
             Name of the array. It's rendered when draw_array is called.
 
-        size:
-            Number of elements in the array.
+        values:
+            The elements to be contained in the array
+
+        name_config:
+            Additional configuration to the Tex object that is the name
+            of the array
+
+        kwargs:
+            Additional configurations to the object as inheriting from
+            VMobject
     """
 
-    def __init__(self, name: str, size: int, **config):
-        VGroup.__init__(self)
+    def __init__(self, name: str, *values, name_config=dict(), **kwargs):
+        self.array_name = Tex(
+            name,
+            **name_config
+        )
 
-        self.name = name
-        self.nameObject = Tex(name, 
-                **config["name_config"]
-            )
-        
-        self.add(self.nameObject)
-        
-        self.size = size
-        self.array = []
-        
-        if (config["values"]):
-            self.array = config["values"]
-        elif (config["memset"]):
-            self.initial_values = config["memset"]
-            for i in range(0, size):
-                self.array.append(self.initial_values)
+        super().__init__(name=name, **kwargs)
 
-        self.pointers = { }
-        self.pointers_text = { }
+        self.add(self.array_name)
+        self.array = values
+        self.pointers = dict()
+        self.pointer_texts = dict()
+        self.squares = VGroup()
+        self.elements = VGroup()
 
-    def create_array(self, sq_size: int, text_size: int):
+    def create_array(self, sq_size: int, name_size=1, **kwargs):
         """Creates the objects for each element in the array.
         """
-        self.squares = []
-        self.numbers = []
-        self.sq_size = sq_size
-        self.text_size = text_size
-        
-        # Create the squares and the numbers for each array element
-        for i in range(0, self.size):
-            shift = RIGHT * i * sq_size * 2
-            centralize = (self.size // 2 + 1) * sq_size * LEFT
+        for val in self.array:
+            element = Tex(
+                # None in the val for an empty box
+                "" if val is None else f"{val}",
+                **kwargs.pop("value_config", {})
+            )
+            # ? The notion of sq_size would be in comparison to the default size
+            # ? instead of the unit square. Oh well
+            square = Square(**kwargs.pop("square_config", {})).scale(sq_size)
+            element.set_height(square.get_height() * 0.65)
+            # Merely for the values to stay inside the squares
+            # I could use an updater for this, but lazy reliance on present implementation
+            square.add(element)
+            self.squares.add(square)
+            self.elements.add(element)
 
-            sqr = Square().scale(sq_size).shift(shift + centralize)
-            num = Tex(str(self.array[i])).scale(text_size).shift(shift + centralize)
-            self.add(sqr)
-            self.add(num)
-            self.squares.append(sqr)
-            self.numbers.append(num)
+        self.squares.arrange(buff=0)
 
-        self.array = {
-            "squares": self.squares,
-            "numbers": self.numbers
-        }
+        self.add(*self.squares)
+        self.add(*self.elements)
 
-        self.nameObject.scale(self.text_size).next_to(self.squares[0], LEFT * 2)
+        self.array_name.scale(name_size)
+        self.array_name.next_to(self.squares.get_left(),
+                                direction=LEFT, aligned_edge=RIGHT)
 
-    def draw_array(self, play, **config):
+    def draw_array(self):
         """Draws the name of the array and each element in order.
         """
-        for i in range(0, self.size):
-            if i == 0:
-                play(
-                    DrawBorderThenFill(self.squares[i]), 
-                    Write(self.numbers[i]),
-                    Write(self.nameObject),
-                    **config
-                )
-            else:
-                play(
-                    DrawBorderThenFill(self.squares[i]), 
-                    Write(self.numbers[i]),
-                    **config
-                )
+        # I think it's better style for this method to simply return the animations
+        # rather than play them, since the rendering of the scene feels more a part
+        # of what a Scene is rather than an Array
 
-    def pop(self, index: int, play, **config):
+        # Here we are just giving the square animation, because the element itself
+        # is inside the square object, so it would be rendered as well.
+        all_anims = [Write(self.array_name)]
+        all_anims.extend(list(
+            DrawBorderThenFill(square)
+            for square in self.squares
+        ))
+        return all_anims
+
+    def pop(self, index: int):
         """Animation when poping an element from the array
-
         Parameters
         ----------
         index : int
             The index of the element
-        play : Callable
-            Pass self.play as a callback
         """
     
         # Fade out the element with the given index
-        play(
-            FadeOutAndShift(self.squares[index], DOWN),
-            FadeOutAndShift(self.numbers[index], DOWN),
-            **config
+        yield FadeOutAndShift(self.squares[index], DOWN)
+        yield FadeOutAndShift(self.elements[index], DOWN)
+
+        target = self.copy()
+
+        square = target.squares[index]
+        element = target.elements[index]
+
+        # Noticed a bit of a logical flaw here
+        self.remove(square)
+        self.remove(element)
+        self.squares.remove(square)
+        self.elements.remove(element)
+        # del square
+        # del element
+
+        #! There's a bit of a paradox here
+        yield ApplyMethod(
+            self.squares[index + 1:].move_to, 
+            target.squares[index:-1]
         )
 
-        diff = self.squares[index].get_x() - self.squares[index - 1].get_x()
-        
-        self.remove(self.squares[index])
-        self.remove(self.numbers[index])
-        self.squares.pop(index)
-        self.numbers.pop(index)
-
-        # Shift the other elements appropriately
-        if (index != self.size - 1):
-            anims = []
-            for i in range(index, len(self.squares)):
-                anims.append(self.squares[i].shift)
-                anims.append(diff * LEFT)
-                anims.append(self.numbers[i].shift)
-                anims.append(diff * LEFT)
-            
-            play(*anims)
-
-    def create_pointer(self, name: str, index: int):
+    def create_pointer(self, index: int):
         """Creates a pointer to an element in the array with given index.
 
         Parameters
         ----------
-        name: Name of the pointer. By this name you can get the pointer later.
         index: Index of the element to which this pointer will point.
 
         Returns
         -------
         Vector
         """
-        pointer = Vector(UP)
-        pointer.next_to(self.squares[index], DOWN)
-        self.pointers[name] = pointer
+        # Let the square above the pointer access the pointer itself
+        # eg. array.squares[2].pointer
+        pointer = Vector(direction=UP)
+        pointer.next_to(self.squares[index].get_bottom(),
+                        direction=DOWN, aligned_edge=UP)
+        # self.squares[index].add(pointer)
+        self.pointers[self.squares[index]] = pointer
         self.add(pointer)
-        return pointer
 
-    def draw_pointer(self, name, play, **config):
-        """Draws the pointer using ShowCreation Animation
+    def draw_pointer(self, index):
+        """Returns ShowCreation animation for the pointer with the square's index
         """
-        play(ShowCreation(self.pointers[name], **config))
+        return ShowCreation(self.pointers[self.squares[index]])
 
-    def draw_pointer_name(self, name: str, text: str, play, **config):
+    def draw_pointer_name(self, index: int, text: str, text_size: int):
         """Draws a text below the pointer
 
         Parameters
         ----------
-        name: Name of the pointer
-        index: Text to draw below the pointer
-        play: Callback to the play function
+        index: Index of the array to acquire the pointer
+        text: Text to draw below the pointer
+        play: play function from the scene
 
         """
-        self.pointers_text[name] = Tex("$" + text + "$").scale(self.text_size)
-        self.pointers_text[name].next_to(self.pointers[name], DOWN)
-        self.pointers_text[name].add_updater(lambda m: m.next_to(self.pointers[name], DOWN))
-        play(Write(self.pointers_text[name], **config))
+        index = self.squares[index]
+        item = Tex(f"${text}$").scale(text_size)
+        item.next_to(self.pointers[index], DOWN)
+        # Again, slightly better than the updater
+        self.pointers[index].add(item)
+        self.pointer_texts[index] = item
+        self.add(item)
+        return Write(item)
 
-    def get_pointer(self, name: str):
-        """Gets the pointer object by it's name
+    def get_pointer(self, index: int):
+        """Gets the pointer object by the index of the square
         """
-        return self.pointers[name]
+        return self.pointers[self.squares[index]]
 
     def get_square(self, index: int):
         """Get the square object of an element with a given index
         """
         return self.squares[index]
 
-    def indicate_at(self, index: int, play, **config):
+    def indicate_at(self, index: int):
         """Uses the Indicate animation on the element with the given index
         """
-        play(
-            Indicate(self.squares[index]),
-            Indicate(self.numbers[index]),
-            **config
-        )
+        yield Indicate(self.squares[index])
+        yield Indicate(self.elements[index])
