@@ -54,7 +54,7 @@ The array is a VGroup, so you can transform it as a whole.
 
  .. code-block:: python
 
-    self.play(array.scale, 1.1, run_time=0.5)
+    self.play(ApplyMethod(array.scale, 1.1), run_time=0.5)
 
 Popping an element:
 
