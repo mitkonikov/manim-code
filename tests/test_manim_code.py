@@ -7,7 +7,7 @@ def test_version():
 def test_create_array_obj():
     arr = [3, 4, 5, 6, 7, 8]
 
-    arr_obj = Array("test:", len(arr), values = arr, name_config = {
+    arr_obj = Array("test:", arr, name_config = {
         "fill_color": "#ff0000"
     })
 

@@ -10,8 +10,8 @@ repository = "https://github.com/mitkonikov/manim-code"
 "manim_code" = "manim_code"
 
 [tool.poetry.dependencies]
-python = "^3.6"
-manimce = "^0.1.0"
+python = "^3.7"
+manim = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

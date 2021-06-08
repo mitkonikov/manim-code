@@ -1,12 +1,12 @@
-from manim.animation.creation import DrawBorderThenFill, ShowCreation, Write
-from manim.animation.fading import FadeOutAndShift
+from manim.animation.creation import DrawBorderThenFill, Write
+from manim.animation.fading import FadeOut
 from manim.animation.indication import Indicate
 from manim.animation.transform import ApplyMethod, MoveToTarget
 from manim.constants import DOWN, LEFT, RIGHT, UP
 from manim.mobject.geometry import Rectangle, Square, Vector
 from manim.mobject.svg.tex_mobject import Tex
 from manim.mobject.types.vectorized_mobject import VGroup
-
+from manim.animation.creation import Create
 
 class Array(VGroup):
     """
@@ -97,8 +97,8 @@ class Array(VGroup):
         """
     
         # Fade out the element with the given index
-        yield FadeOutAndShift(self.squares[index], DOWN)
-        yield FadeOutAndShift(self.elements[index], DOWN)
+        yield FadeOut(self.squares[index], shift = DOWN)
+        yield FadeOut(self.elements[index], shift = DOWN)
 
         target = self.copy()
 
@@ -140,9 +140,9 @@ class Array(VGroup):
         self.add(pointer)
 
     def draw_pointer(self, index):
-        """Returns ShowCreation animation for the pointer with the square's index
+        """Returns Create animation for the pointer with the square's index
         """
-        return ShowCreation(self.pointers[self.squares[index]])
+        return Create(self.pointers[self.squares[index]])
 
     def draw_pointer_name(self, index: int, text: str, text_size: int):
         """Draws a text below the pointer
@@ -157,7 +157,6 @@ class Array(VGroup):
         index = self.squares[index]
         item = Tex(f"${text}$").scale(text_size)
         item.next_to(self.pointers[index], DOWN)
-        # Again, slightly better than the updater
         self.pointers[index].add(item)
         self.pointer_texts[index] = item
         self.add(item)

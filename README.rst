@@ -66,6 +66,8 @@ Popping an element:
     self.play(*pop_anims[-1:]) # shift the others
     self.wait()
 
+In the `examples` folder you can find the full working example.
+
 Functions
 ^^^^^^^^^
 
@@ -101,4 +103,12 @@ get_pointer(index: `int`)
 Contributing
 ~~~~~~~~~~~~
 
-This is a fairly small project, so I think there are many of you guys who can easily contribute to it! Feel free to contribute and suggest new features! The plans for the future are to make the array much more flexible and create different representations, such as 2D and 3D arrays, stacks, etc.
+This is a fairly small project, so I think there are many of you guys who can easily contribute to it!
+Feel free to contribute and suggest new features!
+The plans for the future are to make the array much more flexible and
+create different representations, such as 2D and 3D arrays, stacks, etc.
+
+Notes
+^^^^^
+
+You can build the project by first running ``poetry install`` and ``poetry build`` to build it into wheel files.
