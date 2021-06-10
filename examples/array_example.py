@@ -1,12 +1,12 @@
 from manim import *
-# from manim_code import *
+from manim_code import *
 
 # When developing the script it's nice to just grab it from the source file
 # import sys
-sys.path.append('C:\GitHub\ManimWorks\manim-code\src')
+# sys.path.append('C:\GitHub\ManimWorks\manim-code\src')
 
-from manim_code.array import Array
-from manim_code.pointer import TextPointer
+# from manim_code.array import Array
+# from manim_code.pointer import TextPointer
 
 class ArrayMain(Scene):
     def construct(self):
@@ -44,3 +44,8 @@ class ArrayMain(Scene):
         self.wait()
         self.play(*pop_anims[-1:]) # shift the others
         self.wait()
+
+        # change the value at the 0th index to 3
+        self.play(*array.at(0, 3), run_time=0.1)
+
+        self.wait(1)

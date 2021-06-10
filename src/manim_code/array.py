@@ -1,7 +1,7 @@
 from manim.animation.creation import DrawBorderThenFill, Write
 from manim.animation.fading import FadeOut
 from manim.animation.indication import Indicate
-from manim.animation.transform import ApplyMethod
+from manim.animation.transform import ApplyMethod, ReplacementTransform, Transform
 from manim.constants import DOWN, LEFT, RIGHT, UP
 from manim.mobject.geometry import Square
 from manim.mobject.svg.tex_mobject import Tex
@@ -44,6 +44,9 @@ class Array(VGroup):
     def create_array(self, sq_size: int, name_size=1, **kwargs):
         """Creates the objects for each element in the array.
         """
+        self.create_array_args = kwargs
+        self.sq_size = sq_size
+
         for val in self.array:
             element = Tex(
                 # None in the val for an empty box
@@ -122,6 +125,49 @@ class Array(VGroup):
         """
         yield Indicate(self.squares[index])
         yield Indicate(self.elements[index])
+
+    def at(self, index, value):
+        """Changest the value at a given index"""
+        ### TODO:   Fix this function
+        ###         The old element is still being displayed, find the bug
+        ###         when the run_time is big enough to be seen :)
+        
+        element = Tex(
+            # None in the val for an empty box
+            "" if value is None else f"{value}",
+            **self.create_array_args.pop("value_config", {})
+        )
+
+        # create the new element and square
+        square = Square(**self.create_array_args.pop("square_config", {})).scale(self.sq_size)
+        element.set_height(self.get_square(index).get_height() * 0.65)
+
+        square.add(element)
+        
+        # get the old square
+        oldSquare = self.squares[index]
+        oldElement = self.elements[index]
+
+        # move the new one in that position
+        square.move_to(oldSquare)
+
+        # update the lists of vmobjects
+        self.squares[index] = square
+        self.elements[index] = element
+
+        # remove the old stuff
+        self.remove(oldSquare)
+        self.squares.remove(oldSquare)
+        self.elements.remove(oldElement)
+
+        # add the new vmobjects
+        self.add(square)
+        self.squares.add(square)
+        self.elements.add(element)
+        
+        return [
+            Transform(oldElement, element)
+        ]
 
     def connect_pointer(self, pointer):
         self.add(pointer)
