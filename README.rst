@@ -33,16 +33,19 @@ Example code:
     for anims in array.draw_array():
         self.play(anims, run_time=0.5)
 
-Creating a pointer to an element in the array:
+Creating a pointer to an element in the array using the TextPointer class from our library:
 
  .. code-block:: python
 
-    array.create_pointer(index=2)
-    self.play(array.draw_pointer(index=2), run_time=0.5)
-    self.play(array.draw_pointer_name(index=2, text="Here", text_size=1.2))
-    
-    # get the pointer at index 2 and shift it to the square with index 4
-    pointer = array.get_pointer(2)
+    # create a pointer with a text label
+    pointer = TextPointer("Here", 0.8, UP)
+    pointer.next_to(array.get_square(2), DOWN)
+    self.play(*pointer.draw(), run_time=0.5)
+
+    # connect the pointer, so when you transform the array
+    # it will transform the pointer as well
+    array.connect_pointer(pointer)
+
     self.play(
         ApplyMethod(pointer.next_to, array.get_square(4), DOWN, aligned_edge=UP),
         run_time=0.5
@@ -83,22 +86,24 @@ pop (index: `int`)
 get_square (index: `int`)
     Gets the Square object of an element with the given index.
 
-Pointers to elements
-^^^^^^^^^^^^^^^^^^^^
-
-create_pointer (index: `int`)
-    Creates a pointer to an element with the given `index`. The pointer is identified (mostly?) by the Square above it
-
-draw_pointer(index: `int`)
-    Returns the animation that draws the pointer.
-
-draw_pointer_name(index: `int`, text: `str`, text_size: `int`)
-    Draw a `text` below a pointer of the square of that index.
-
-get_pointer(index: `int`)
-    Gets the pointer's Vector object.
-
 ----------
+
+TextPointer and Pointer
+~~~~~~~~~~~~~~~~~~~~~~~
+
+These two classes allow you to create a simple arrow pointers with/without a label.
+
+.. code-block:: python
+
+    # create a pointer with a text label
+    pointer = TextPointer("Here", 0.8, UP)
+
+    # this is an example of positioning
+    pointer.next_to(array.get_square(2), DOWN)
+    
+    # drawing the pointer and its label
+    self.play(*pointer.draw(), run_time=0.5)
+
 
 Contributing
 ~~~~~~~~~~~~

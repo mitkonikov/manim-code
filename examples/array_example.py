@@ -1,11 +1,12 @@
 from manim import *
-from manim_code import *
+# from manim_code import *
 
 # When developing the script it's nice to just grab it from the source file
 # import sys
-# sys.path.append('C:\GitHub\ManimWorks\manim-code\src')
+sys.path.append('C:\GitHub\ManimWorks\manim-code\src')
 
-# from manim_code.array import Array
+from manim_code.array import Array
+from manim_code.pointer import TextPointer
 
 class ArrayMain(Scene):
     def construct(self):
@@ -17,12 +18,17 @@ class ArrayMain(Scene):
         array.create_array(sq_size=0.5, name_size=1.2)
         for anims in array.draw_array():
             self.play(anims, run_time = 0.5)
-        array.create_pointer(index=2)
-        self.play(array.draw_pointer(index=2), run_time=0.5)
-        self.play(array.draw_pointer_name(index=2, text="Here", text_size=1.2))
         
-        # get the pointer at index 2 and shift it to the square with index 4
-        pointer = array.get_pointer(2)
+        # create a pointer with a text label
+        pointer = TextPointer("Here", 0.8, UP)
+        pointer.next_to(array.get_square(2), DOWN)
+        self.play(*pointer.draw(), run_time=0.5)
+
+        # connect the pointer, so when you transform the array
+        # it will transform the pointer as well
+        array.connect_pointer(pointer)
+
+        # shift the pointer
         self.play(
             ApplyMethod(pointer.next_to, array.get_square(4), DOWN, aligned_edge=UP),
             run_time=0.5

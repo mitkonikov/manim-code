@@ -1,12 +1,11 @@
 from manim.animation.creation import DrawBorderThenFill, Write
 from manim.animation.fading import FadeOut
 from manim.animation.indication import Indicate
-from manim.animation.transform import ApplyMethod, MoveToTarget
+from manim.animation.transform import ApplyMethod
 from manim.constants import DOWN, LEFT, RIGHT, UP
-from manim.mobject.geometry import Rectangle, Square, Vector
+from manim.mobject.geometry import Square
 from manim.mobject.svg.tex_mobject import Tex
 from manim.mobject.types.vectorized_mobject import VGroup
-from manim.animation.creation import Create
 
 class Array(VGroup):
     """
@@ -39,8 +38,6 @@ class Array(VGroup):
 
         self.add(self.array_name)
         self.array = values
-        self.pointers = dict()
-        self.pointer_texts = dict()
         self.squares = VGroup()
         self.elements = VGroup()
 
@@ -75,10 +72,6 @@ class Array(VGroup):
     def draw_array(self):
         """Draws the name of the array and each element in order.
         """
-        # I think it's better style for this method to simply return the animations
-        # rather than play them, since the rendering of the scene feels more a part
-        # of what a Scene is rather than an Array
-
         # Here we are just giving the square animation, because the element itself
         # is inside the square object, so it would be rendered as well.
         all_anims = [Write(self.array_name)]
@@ -119,54 +112,6 @@ class Array(VGroup):
             target.squares[index:-1]
         )
 
-    def create_pointer(self, index: int):
-        """Creates a pointer to an element in the array with given index.
-
-        Parameters
-        ----------
-        index: Index of the element to which this pointer will point.
-
-        Returns
-        -------
-        Vector
-        """
-        # Let the square above the pointer access the pointer itself
-        # eg. array.squares[2].pointer
-        pointer = Vector(direction=UP)
-        pointer.next_to(self.squares[index].get_bottom(),
-                        direction=DOWN, aligned_edge=UP)
-        # self.squares[index].add(pointer)
-        self.pointers[self.squares[index]] = pointer
-        self.add(pointer)
-
-    def draw_pointer(self, index):
-        """Returns Create animation for the pointer with the square's index
-        """
-        return Create(self.pointers[self.squares[index]])
-
-    def draw_pointer_name(self, index: int, text: str, text_size: int):
-        """Draws a text below the pointer
-
-        Parameters
-        ----------
-        index: Index of the array to acquire the pointer
-        text: Text to draw below the pointer
-        play: play function from the scene
-
-        """
-        index = self.squares[index]
-        item = Tex(f"${text}$").scale(text_size)
-        item.next_to(self.pointers[index], DOWN)
-        self.pointers[index].add(item)
-        self.pointer_texts[index] = item
-        self.add(item)
-        return Write(item)
-
-    def get_pointer(self, index: int):
-        """Gets the pointer object by the index of the square
-        """
-        return self.pointers[self.squares[index]]
-
     def get_square(self, index: int):
         """Get the square object of an element with a given index
         """
@@ -177,3 +122,6 @@ class Array(VGroup):
         """
         yield Indicate(self.squares[index])
         yield Indicate(self.elements[index])
+
+    def connect_pointer(self, pointer):
+        self.add(pointer)
