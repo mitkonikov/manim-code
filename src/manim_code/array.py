@@ -139,6 +139,10 @@ class Array(VGroup):
         )
 
         oldElement = self.elements[index]
+        
+        element.set_height(self.squares[index].get_height() * 0.65)
+        element.move_to(oldElement)
+
         oldElement.target = element
         
         return [
