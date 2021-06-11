@@ -1,7 +1,7 @@
 from manim.animation.creation import DrawBorderThenFill, Write
 from manim.animation.fading import FadeOut
 from manim.animation.indication import Indicate
-from manim.animation.transform import ApplyMethod, ReplacementTransform, Transform
+from manim.animation.transform import ApplyMethod, MoveToTarget, ReplacementTransform, Transform
 from manim.constants import DOWN, LEFT, RIGHT, UP
 from manim.mobject.geometry import Square
 from manim.mobject.svg.tex_mobject import Tex
@@ -129,8 +129,8 @@ class Array(VGroup):
     def at(self, index, value):
         """Changest the value at a given index"""
         ### TODO:   Fix this function
-        ###         The old element is still being displayed, find the bug
-        ###         when the run_time is big enough to be seen :)
+        ###         Right now, we don't change the square
+        ###         Also, the MoveToTarget animation is not smooth
         
         element = Tex(
             # None in the val for an empty box
@@ -138,35 +138,11 @@ class Array(VGroup):
             **self.create_array_args.pop("value_config", {})
         )
 
-        # create the new element and square
-        square = Square(**self.create_array_args.pop("square_config", {})).scale(self.sq_size)
-        element.set_height(self.get_square(index).get_height() * 0.65)
-
-        square.add(element)
-        
-        # get the old square
-        oldSquare = self.squares[index]
         oldElement = self.elements[index]
-
-        # move the new one in that position
-        square.move_to(oldSquare)
-
-        # update the lists of vmobjects
-        self.squares[index] = square
-        self.elements[index] = element
-
-        # remove the old stuff
-        self.remove(oldSquare)
-        self.squares.remove(oldSquare)
-        self.elements.remove(oldElement)
-
-        # add the new vmobjects
-        self.add(square)
-        self.squares.add(square)
-        self.elements.add(element)
+        oldElement.target = element
         
         return [
-            Transform(oldElement, element)
+            MoveToTarget(oldElement)
         ]
 
     def connect_pointer(self, pointer):

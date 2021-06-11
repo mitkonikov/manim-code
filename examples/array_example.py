@@ -46,6 +46,6 @@ class ArrayMain(Scene):
         self.wait()
 
         # change the value at the 0th index to 3
-        self.play(*array.at(0, 3), run_time=0.1)
+        self.play(*array.at(0, 3), run_time=0.3)
 
         self.wait(1)
